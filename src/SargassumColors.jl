@@ -1,5 +1,11 @@
 module SargassumColors
 
-# Write your package code here.
+using Colors, ColorSchemes
+
+include(join(@__DIR__, "eureka.jl"))
+export EUREKA
+
+include(join(@__DIR__, "shadden.jl"))
+export SHADDEN
 
 end
