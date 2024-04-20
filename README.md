@@ -1,6 +1,6 @@
 # SargassumColors
 
-This package provides two colormaps, `EUREKA` and `SHADDEN`.
+This package provides two colormaps, `EUREKA` and `SHADDEN`, as well as a plotting theme `GEO_THEME()`.
 
 These colormaps were created by the [Nonlinear Dynamics Group](https://nonlinear.earth.miami.edu/people/index.html) at the University of Miami.
 
