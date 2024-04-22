@@ -1,5 +1,5 @@
 """
-    land!(axis; landpath; args...)
+    land!(axis; landpath, args...)
 
 Add a land polygon to `axis::Makie.Axis`. This will be placed on top of any graphics that 
 are already on the axis. The land is gray by default. Returns `Makie.poly!`.
