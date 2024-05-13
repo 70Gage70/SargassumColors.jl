@@ -33,5 +33,7 @@ function land!(
     landpoly = GeoJSON.read(read(landpath, String))
     defaults = (color = RGBf(0.5,0.5,0.5),)
 
-    poly!(axis, landpoly; merge(defaults, args)...)
+    for feature in landpoly, poly in feature.geometry
+        poly!(axis, poly; merge(defaults, args)...)
+    end
 end
