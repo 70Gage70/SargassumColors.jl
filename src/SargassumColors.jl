@@ -1,7 +1,8 @@
 module SargassumColors
 
 using Colors, ColorSchemes
-using Makie, GeoJSON
+using Makie
+using GeoDatasets
 
 include(joinpath(@__DIR__, "eureka.jl"))
 export EUREKA

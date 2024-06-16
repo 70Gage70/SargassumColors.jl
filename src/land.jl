@@ -1,39 +1,31 @@
 """
-    land!(axis; landpath, args...)
+    land!(axis; resolution, grid, landcolor, args...)
 
-Add a land polygon to `axis::Makie.Axis`. This will be placed on top of any graphics that 
-are already on the axis. The land is gray by default. Returns `Makie.poly!`.
+Add a land heatmap to `axis::Makie.Axis`. This will be placed on top of any graphics that 
+are already on the axis. The land is gray by default. Returns `Makie.heatmap!`.
+
+The land data is provided by `GeoDatasets.jl` which downloads the data from basemap.
 
 ### Optional Arguments
 
-- `resolution`: Takes a value in `["h", "m",  "l"]`.
- - `"h"`: 10 m 
- - `"h"`: 50 m (default)
- - `"l"`: 110 m 
-Plotting is accomplished via geojson files from https://github.com/nvkelso/natural-earth-vector/tree/master/geojson
-- `args...`: All keyword arguments are passed directly to `Makie.poly!`.
+- `resolution`: The parameter resolution should be either 'c','l','i','h' or 'f' (standing \
+for crude, low, intermediate, high and full resolution). This controls which features are \
+visible, with smaller landmass "switching on" at higher resolutions.
+- `grid`: The resolution in arc minutes and should be either 1.25, 2.5, 5 or 10. The smaller `grid`, the \
+more detail is visible at the given `resolution`. 
+- `landcolor`: The color of the landmass. Default `RGBf(0.5, 0.5, 0.5)`.
+- `args...`: All keyword arguments are passed directly to `Makie.heatmap!`.
 """
 function land!(
     axis::Axis;
-    resolution::String = "m",
+    resolution::Union{String, Char} = "i",
+    grid::Real = 2.5,
+    landcolor = RGBf(0.5, 0.5, 0.5),
     args...)
 
-    if !(resolution in ["h", "m", "l"])
-        error("resolution must be one of $(["h", "m", "l"])")
-    end
-
-    if resolution == "h"
-        landpath = joinpath(@__DIR__, "..", "geojson", "ne_10m_land.geojson")
-    elseif resolution == "m"
-        landpath = joinpath(@__DIR__, "..", "geojson", "ne_50m_land.geojson")
-    elseif resolution == "l"
-        landpath = joinpath(@__DIR__, "..", "geojson", "ne_110m_land.geojson")
-    end
-
-    landpoly = GeoJSON.read(read(landpath, String))
-    defaults = (color = RGBf(0.5,0.5,0.5),)
-
-    for feature in landpoly, poly in feature.geometry
-        poly!(axis, poly; merge(defaults, args)...)
-    end
+    lon, lat, data = GeoDatasets.landseamask(;resolution = resolution, grid = grid)
+    custom_colors = [RGBA(0, 0, 0, 0), landcolor, landcolor]
+    defaults = (colorrange = (0, 2), colormap = custom_colors)
+    
+    return heatmap!(axis, lon, lat, data; merge(defaults, args)...)
 end
