@@ -2,30 +2,36 @@
     land!(axis; resolution, grid, landcolor, args...)
 
 Add a land heatmap to `axis::Makie.Axis`. This will be placed on top of any graphics that 
-are already on the axis. The land is gray by default. Returns `Makie.heatmap!`.
+are already on the axis. The land is gray by default. Returns `Makie.poly!`.
 
-The land data is provided by `GeoDatasets.jl` which downloads the data from basemap.
+The land data is provided by `NaturalEarth.jl`.
 
 ### Optional Arguments
 
-- `resolution`: The parameter resolution should be either 'c','l','i','h' or 'f' (standing \
-for crude, low, intermediate, high and full resolution). This controls which features are \
-visible, with smaller landmass "switching on" at higher resolutions.
-- `grid`: The resolution in arc minutes and should be either 1.25, 2.5, 5 or 10. The smaller `grid`, the \
-more detail is visible at the given `resolution`. 
+- `resolution`: The parameter resolution should be either "l", "m" or "h" (standing \
+for low, medium and high resolution). This controls which features are \
+visible, with smaller landmass "switching on" at higher resolutions. Default `"m"`.
 - `landcolor`: The color of the landmass. Default `RGBf(0.5, 0.5, 0.5)`.
 - `args...`: All keyword arguments are passed directly to `Makie.heatmap!`.
 """
 function land!(
     axis::Axis;
-    resolution::Union{String, Char} = "i",
-    grid::Real = 2.5,
+    resolution::String = "m",
     landcolor = RGBf(0.5, 0.5, 0.5),
     args...)
 
-    lon, lat, data = GeoDatasets.landseamask(;resolution = resolution, grid = grid)
-    custom_colors = [RGBA(0, 0, 0, 0), landcolor, landcolor]
-    defaults = (colorrange = (0, 2), colormap = custom_colors)
+    @argcheck resolution in ["l", "m", "h"]
+
+    if resolution == "l"
+        data = naturalearth("land", 110)
+    elseif resolution == "m"
+        data = naturalearth("land", 50)
+    elseif resolution == "h"
+        data = naturalearth("land", 10)
+    end
+
+    defaults = (color = landcolor,)
+    mp = to_multipoly(data.geometry)
     
-    return heatmap!(axis, lon, lat, data; merge(defaults, args)...)
+    return poly!(axis, mp; merge(defaults, args)...)
 end
